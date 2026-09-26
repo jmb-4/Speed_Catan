@@ -7,16 +7,19 @@ Single-page Catan (Settlers) timer app: setup phase (player placements) → play
 ## Stack
 
 - **Vanilla JS ESM** — no framework, no bundler
-- **Playwright** for unit and UI tests (58 tests total: 28 unit in `tests/unit/`, 30 UI in `tests/ui/`)
+- **localStorage persistence** — `persistence.js` saves settings + game state on the device (versioned JSON under `speed-catan:state`, guarded for private mode); reloads restore the saved game paused, "Neues Spiel" clears the game but keeps settings
+- **Playwright** for unit and UI tests (68 tests total: 29 unit in `tests/unit/`, 39 UI in `tests/ui/`)
 - **Python `http.server`** on port 3123 serves the app during tests (`npm run serve` / `npx --yes serve -l 3123 .` serves the same port for local dev)
 
 ## File layout
 
 ```
 *.js                  — feature modules (config.js, game-state.js, timer.js,
-                        timer-logic.js, setup-logic.js, setup-screen.js, play-screen.js)
+                        timer-logic.js, setup-logic.js, setup-screen.js, play-screen.js,
+                        persistence.js)
 speed-catan.html      — single HTML entry point
-speed-catan.js        — orchestrator: imports all modules, wires events, init
+speed-catan.js        — orchestrator: imports all modules, wires events,
+                        restores saved state, registers autosave listeners
 playwright.config.ts  — test config (unit + ui projects, web server on 3123)
 tests/
   unit/               — pure-function tests (Vitest-style via Playwright runner)
@@ -27,7 +30,11 @@ tests/
 
 ### State
 
-All game state lives in `game-state.js` as a module-level singleton. Never rely on module state persisting across page navigations — `resetState()` is called at page load to ensure every test starts clean.
+All game state lives in `game-state.js` as a module-level singleton. `resetState()` is called at page load, but the orchestrator then **restores the saved game from localStorage** (`persistence.js`) — a page reload does not start clean; each Playwright test still gets a fresh browser context, so saved state never leaks between tests.
+
+### Persistence autosave
+
+`speed-catan.js` registers autosave listeners on `game-state.js` and `timer.js` **after** the load-time restore (so init never fabricates phantom saves). Settings are saved by `setup-screen.js` on input changes. On "Neues Spiel", `clearState()` runs **last** so the timer-reset autosave can't re-persist a stale snapshot.
 
 ### Modules
 
