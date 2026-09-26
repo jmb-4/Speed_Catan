@@ -14,8 +14,24 @@ import {
   getSetupTime,
   PHASES,
 } from './game-state.js';
-import { resetTimer, addTime, pauseTimer } from './timer.js';
+import { resetTimer, addTime, pauseTimer, getTimeLeft, getTotalTime, isRunning, isPaused } from './timer.js';
 import { ROBBER_BONUS } from './config.js';
+import { saveState } from './persistence.js';
+
+/**
+ * Sichert den aktuellen Timer-Stand (nach jedem resetTimer in den
+ * Render-Funktionen), damit ein Reload den Stand wiederherstellen kann.
+ */
+function saveTimerSnapshot() {
+  saveState({
+    timer: {
+      timeLeft: getTimeLeft(),
+      totalTime: getTotalTime(),
+      wasRunning: isRunning(),
+      isPaused: isPaused(),
+    },
+  });
+}
 
 /* ── Screen refs ─────────────────────────────────────────── */
 
@@ -61,6 +77,7 @@ function renderSetupPhase() {
 
   const baseTime = getSetupTime();
   resetTimer(baseTime);
+  saveTimerSnapshot();
 }
 
 function renderPlayPhase() {
@@ -81,6 +98,7 @@ function renderPlayPhase() {
   }).join('');
 
   resetTimer(actionTime);
+  saveTimerSnapshot();
 }
 
 /* ── Show Play Screen ───────────────────────────────────────── */

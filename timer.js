@@ -7,11 +7,22 @@ import { DEFAULT_SETUP_TIME } from './config.js';
 
 let state = {
   timeLeft:  DEFAULT_SETUP_TIME,
-  totalTime:  DEFAULT_SETUP_TIME,
+  totalTime: DEFAULT_SETUP_TIME,
   isRunning:  false,
   isPaused:   false,
   intervalId: null,
 };
+
+// Optionaler Listener für Autosave (wird von speed-catan.js registriert)
+let onChange = null;
+
+export function setOnChangeListener(fn) {
+  onChange = fn;
+}
+
+function notifyChange() {
+  onChange?.();
+}
 
 /** Setzt den Timer zurück (z.B. bei Phasenwechsel) */
 export function resetTimer(seconds) {
@@ -20,6 +31,22 @@ export function resetTimer(seconds) {
   state.totalTime = seconds;
   state.isPaused  = false;
   updateDOM();
+  notifyChange();
+}
+
+/**
+ * Stellt einen gespeicherten Timer-Stand wieder her (nach Reload).
+ * Läuft nie von selbst weiter – ein laufender Timer wird PAUSIERT.
+ */
+export function restoreTimer(snapshot) {
+  stopTimer();
+  state.timeLeft  = snapshot.timeLeft;
+  state.totalTime = snapshot.totalTime;
+  state.isRunning = false;
+  state.isPaused  = (snapshot.wasRunning || snapshot.isPaused) && state.timeLeft > 0;
+  updateDOM();
+  updatePlayButton();
+  notifyChange();
 }
 
 /** Startet / pausiert den Timer */
@@ -33,6 +60,7 @@ export function startTimer() {
   state.isRunning = true;
   state.isPaused  = false;
   updatePlayButton();
+  notifyChange();
 
   state.intervalId = setInterval(() => {
     state.timeLeft = Math.max(state.timeLeft - 1, 0);
@@ -41,6 +69,7 @@ export function startTimer() {
     if (state.timeLeft <= 0) {
       stopTimer();
     }
+    notifyChange();
   }, 1000);
 }
 
@@ -48,6 +77,7 @@ export function pauseTimer() {
   stopTimer();
   state.isPaused = state.timeLeft > 0;
   updateDOM();
+  notifyChange();
 }
 
 function stopTimer() {
@@ -65,6 +95,7 @@ export function addTime(seconds) {
   state.totalTime += seconds; // bar wächst mit
   updateDOM();
   updatePlayButton();
+  notifyChange();
 }
 
 /** Aktuelle Zeit (für externe checks) */
@@ -74,6 +105,14 @@ export function getTimeLeft() {
 
 export function isRunning() {
   return state.isRunning;
+}
+
+export function getTotalTime() {
+  return state.totalTime;
+}
+
+export function isPaused() {
+  return state.isPaused;
 }
 
 /** Setzt den gesamten Timer-State zurück (inkl. intervalId) */
@@ -88,6 +127,7 @@ export function resetAll() {
   }
   updateDOM();
   updatePlayButton();
+  notifyChange();
 }
 
 /* ── DOM-Update ─────────────────────────────────────────── */

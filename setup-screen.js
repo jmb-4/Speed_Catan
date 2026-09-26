@@ -5,6 +5,7 @@
 import { PLAYER_COLORS, DEFAULT_SETUP_TIME, DEFAULT_ACTION_TIME } from './config.js';
 import { getPlayers, getSetupStep } from './game-state.js';
 import { resetAll as resetTimerAll } from './timer.js';
+import { saveState } from './persistence.js';
 
 /* ── Screen refs ─────────────────────────────────────────── */
 
@@ -76,6 +77,13 @@ export function getPlayersFromDOM() {
   });
 }
 
+/** Wendet gespeicherte Einstellungen auf die Eingabefelder an (nach Reload) */
+export function applySettingsToDOM(settings) {
+  playerCount.value  = String(settings.playerCount);
+  setupTimeEl.value  = String(settings.setupTime);
+  actionTimeEl.value = String(settings.actionTime);
+}
+
 /* ── Show Setup Screen ─────────────────────────────────────── */
 
 export function showSetupScreen() {
@@ -86,13 +94,30 @@ export function showSetupScreen() {
 /* ── Event wiring (called by orchestrator) ─────────────────── */
 
 export function wireSetupScreenEvents({ onStart }) {
+  // Einstellungen bei jeder Änderung lokal sichern
+  const saveSettings = () => {
+    saveState({
+      settings: {
+        playerCount: parseInt(playerCount.value, 10) || 6,
+        colors: getPlayersFromDOM().map(p => p.color),
+        setupTime: parseInt(setupTimeEl.value, 10) || DEFAULT_SETUP_TIME,
+        actionTime: parseInt(actionTimeEl.value, 10) || DEFAULT_ACTION_TIME,
+      },
+    });
+  };
+
   playerCount.addEventListener('change', () => {
     renderColorRows();
+    saveSettings();
   });
 
   colorList.addEventListener('change', () => {
     renderColorRows();
+    saveSettings();
   });
+
+  setupTimeEl.addEventListener('change', saveSettings);
+  actionTimeEl.addEventListener('change', saveSettings);
 
   startBtn.addEventListener('click', () => {
     const players    = getPlayersFromDOM();
