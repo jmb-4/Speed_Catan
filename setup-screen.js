@@ -2,8 +2,8 @@
  * Setup Screen – Spieler-Konfiguration und Farbauswahl.
  */
 
-import { PLAYER_COLORS, DEFAULT_SETUP_TIME, DEFAULT_ACTION_TIME } from './config.js';
-import { getPlayers, getSetupStep } from './game-state.js';
+import { PLAYER_COLORS, DEFAULT_PLAYER_COUNT, DEFAULT_SETUP_TIME, DEFAULT_ACTION_TIME } from './config.js';
+import { getPlayers } from './game-state.js';
 import { resetAll as resetTimerAll } from './timer.js';
 import { saveState } from './persistence.js';
 
@@ -94,16 +94,17 @@ export function showSetupScreen() {
 /* ── Event wiring (called by orchestrator) ─────────────────── */
 
 export function wireSetupScreenEvents({ onStart }) {
+  // Eingabefelder lesen, mit Defaults absichern
+  const readSettings = () => ({
+    playerCount: parseInt(playerCount.value, 10) || DEFAULT_PLAYER_COUNT,
+    colors: getPlayersFromDOM().map(p => p.color),
+    setupTime: parseInt(setupTimeEl.value, 10) || DEFAULT_SETUP_TIME,
+    actionTime: parseInt(actionTimeEl.value, 10) || DEFAULT_ACTION_TIME,
+  });
+
   // Einstellungen bei jeder Änderung lokal sichern
   const saveSettings = () => {
-    saveState({
-      settings: {
-        playerCount: parseInt(playerCount.value, 10) || 6,
-        colors: getPlayersFromDOM().map(p => p.color),
-        setupTime: parseInt(setupTimeEl.value, 10) || DEFAULT_SETUP_TIME,
-        actionTime: parseInt(actionTimeEl.value, 10) || DEFAULT_ACTION_TIME,
-      },
-    });
+    saveState({ settings: readSettings() });
   };
 
   playerCount.addEventListener('change', () => {
@@ -120,9 +121,7 @@ export function wireSetupScreenEvents({ onStart }) {
   actionTimeEl.addEventListener('change', saveSettings);
 
   startBtn.addEventListener('click', () => {
-    const players    = getPlayersFromDOM();
-    const setupTime  = parseInt(setupTimeEl.value, 10) || DEFAULT_SETUP_TIME;
-    const actionTime = parseInt(actionTimeEl.value, 10) || DEFAULT_ACTION_TIME;
-    onStart(players, setupTime, actionTime);
+    const { setupTime, actionTime } = readSettings();
+    onStart(getPlayersFromDOM(), setupTime, actionTime);
   });
 }

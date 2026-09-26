@@ -126,7 +126,7 @@ wireSetupScreenEvents({
 wirePlayScreenEvents({
   onBack: () => {
     // Neues Spiel: Spielstand löschen, Einstellungen behalten.
-    // showSetupScreen() resettet den Timer selbst (resetTimerAll);
+    // showSetupScreen() resettet den Timer selbst (resetAll);
     // clearState() zuletzt, damit der Reset-Autosave nichts nachspeichert.
     showSetupScreen();
     renderColorRows();

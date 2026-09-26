@@ -1,5 +1,5 @@
 import { buildSetupSequence } from './setup-logic.js';
-import { DEFAULT_SETUP_TIME, DEFAULT_ACTION_TIME } from './config.js';
+import { DEFAULT_PLAYER_COUNT, DEFAULT_SETUP_TIME, DEFAULT_ACTION_TIME } from './config.js';
 
 /**
  * GameState – zentraler State für das Spiel.
@@ -24,7 +24,7 @@ function notifyChange() {
 let state = {
   phase:              PHASES.SETUP,
   players:            [],
-  playerCount:        6,
+  playerCount:        DEFAULT_PLAYER_COUNT,
   setupTime:          DEFAULT_SETUP_TIME,
   actionTime:         DEFAULT_ACTION_TIME,
   setupSequence:      [],
@@ -35,7 +35,7 @@ let state = {
 export function resetState() {
   state.phase              = PHASES.SETUP;
   state.players            = [];
-  state.playerCount        = 6;
+  state.playerCount        = DEFAULT_PLAYER_COUNT;
   state.setupTime          = DEFAULT_SETUP_TIME;
   state.actionTime         = DEFAULT_ACTION_TIME;
   state.setupSequence      = [];
