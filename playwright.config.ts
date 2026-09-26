@@ -18,8 +18,13 @@ export default defineConfig({
       webServer: {
         command: 'python3 -m http.server 3123 --bind 127.0.0.1 --directory .',
         port: 3123,
+        // Wait for a real 200 on the entry page, not just an open TCP port
+        url: 'http://127.0.0.1:3123/speed-catan.html',
         reuseExistingServer: !process.env.CI,
-        timeout: 10000,
+        timeout: 30000,
+        // Surface server output in CI logs for debugging
+        stdout: 'pipe',
+        stderr: 'pipe',
       },
     },
   ],
