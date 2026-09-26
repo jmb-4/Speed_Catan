@@ -1,4 +1,4 @@
-# Catan Timer
+# Speed Catan
 
 A timer app for The Settlers of Catan — built as a single-page HTML/JS app with no build step.
 
@@ -8,20 +8,23 @@ A timer app for The Settlers of Catan — built as a single-page HTML/JS app wit
 - **Play Phase** — Action timer with configurable duration
 - **Robust +15s** — Instantly add 15 seconds when the robber is moved
 - **Pause / Resume** — Freeze and resume the active timer at any time
-- **Back Button** — Return to the previous phase
+- **Neues Spiel Button** — Start a new game and return to the setup screen
 
 ## Tech Stack
 
 - **Vanilla JavaScript** with ES modules — no framework, no build step
-- **Playwright** for end-to-end and unit tests (67 tests total: 35 unit + 32 UI)
+- **Playwright** for end-to-end and unit tests (58 tests total: 28 unit + 30 UI)
 
 ## Run Locally
 
 ```bash
-python3 -m http.server 3123
+npm install
+npm run serve
 ```
 
-Then open [http://localhost:3123/catan-timer.html](http://localhost:3123/catan-timer.html) in your browser.
+Then open [http://localhost:3123/speed-catan.html](http://localhost:3123/speed-catan.html) in your browser.
+
+Zero-install alternative: `python3 -m http.server 3123` also works.
 
 ## Run Tests
 
@@ -33,9 +36,9 @@ npx playwright test
 ## Project Structure
 
 ```
-catan-timer/
-├── catan-timer.html          # Entry point
-├── catan-timer.js            # Main app / screen router
+speed-catan/
+├── speed-catan.html          # Entry point
+├── speed-catan.js            # Main app / screen router
 ├── config.js                 # Configuration constants
 ├── game-state.js             # Game state machine
 ├── timer.js                  # Timer UI component

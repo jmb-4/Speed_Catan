@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catan Timer</title>
+  <title>Speed Catan</title>
   <style>
     * { box-sizing: border-box; }
 
@@ -302,7 +302,7 @@
 
     <!-- ── Setup Screen ── -->
     <div id="setupScreen" class="screen active">
-      <h1>Catan Timer</h1>
+      <h1>Speed Catan</h1>
 
       <label for="playerCount">Anzahl Spieler</label>
       <select id="playerCount">
@@ -327,14 +327,14 @@
 
     <!-- ── Play Screen ── -->
     <div id="playScreen" class="screen">
-      <h1>Catan Timer</h1>
+      <h1>Speed Catan</h1>
 
       <div id="phaseBanner" class="phase-banner">Aufbauphase</div>
 
       <div id="playerList" class="player-list"></div>
 
       <div class="timer-row">
-        <div id="timer" class="timer-num">60</div>
+        <div id="timer" class="timer-num"></div>
         <div class="bar-track">
           <div id="bar" class="bar-fill"></div>
         </div>
@@ -351,6 +351,6 @@
 
   </div>
 
-  <script type="module" src="catan-timer.js"></script>
+  <script type="module" src="speed-catan.js"></script>
 </body>
 </html>

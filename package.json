@@ -1,12 +1,12 @@
 {
-  "name": "catan-timer",
+  "name": "speed-catan",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test tests/ui",
     "test:unit": "playwright test tests/unit",
-    "serve": "http-server . -p 3000"
+    "serve": "npx --yes serve -l 3123 ."
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1"

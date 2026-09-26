@@ -1,5 +1,5 @@
 /**
- * Catan Timer – Haupteinstiegspunkt (Orchestrator).
+ * Speed Catan – Haupteinstiegspunkt (Orchestrator).
  *
  * Importiert Setup- und Play-Screen-Module und verdrahtet
  * die globalen Event Listener.

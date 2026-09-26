@@ -8,13 +8,6 @@
  *   intervalId  – Referenz auf setInterval
  */
 
-export const TIMER_STATES = {
-  IDLE:    'idle',
-  RUNNING: 'running',
-  PAUSED:  'paused',
-  DONE:    'done',
-};
-
 /** Formatiert Sekunden als String */
 export function formatTime(seconds) {
   if (seconds <= 0) return "Zeit abgelaufen";

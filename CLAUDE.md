@@ -1,4 +1,4 @@
-# CLAUDE.md — Catan Timer
+# CLAUDE.md — Speed Catan
 
 ## Project overview
 
@@ -7,19 +7,20 @@ Single-page Catan (Settlers) timer app: setup phase (player placements) → play
 ## Stack
 
 - **Vanilla JS ESM** — no framework, no bundler
-- **Playwright** for unit and UI tests
-- **Python `http.server`** serves the app during tests
+- **Playwright** for unit and UI tests (58 tests total: 28 unit in `tests/unit/`, 30 UI in `tests/ui/`)
+- **Python `http.server`** on port 3123 serves the app during tests (`npm run serve` / `npx --yes serve -l 3123 .` serves the same port for local dev)
 
 ## File layout
 
 ```
-*.js          — feature modules (game-state, timer, setup-logic, etc.)
-catan-timer.html — single HTML entry point
-catan-timer.js   — orchestrator: imports all modules, wires events, init
-playwright.config.ts — test config (unit + ui projects, web server)
+*.js                  — feature modules (config.js, game-state.js, timer.js,
+                        timer-logic.js, setup-logic.js, setup-screen.js, play-screen.js)
+speed-catan.html      — single HTML entry point
+speed-catan.js        — orchestrator: imports all modules, wires events, init
+playwright.config.ts  — test config (unit + ui projects, web server on 3123)
 tests/
-  unit/      — pure-function tests (Vitest-style via Playwright runner)
-  ui/         — DOM/render tests (Playwright browser)
+  unit/               — pure-function tests (Vitest-style via Playwright runner)
+  ui/                 — DOM/render tests (Playwright browser)
 ```
 
 ## Conventions
@@ -38,7 +39,7 @@ All game state lives in `game-state.js` as a module-level singleton. Never rely 
 ### Test isolation (critical)
 
 `game-state.js` state is a singleton. Unit tests modify it and it persists in the same process. This means:
-- **Always call `resetState()`** in `catan-timer.js` init block
+- **Always call `resetState()`** in `speed-catan.js` init block
 - Unit tests that call `initGame()` or mutators must not leak state to UI tests
 - UI tests navigate fresh pages — if state is polluted, `renderSetupPhase()` returns early and the setup screen is empty
 
@@ -63,7 +64,7 @@ CI=true npx playwright test tests/ui/play-screen.spec.ts
 ### Test style
 
 - Test names: `feature: description` (e.g. `play: next button advances setup step`)
-- UI tests: navigate via `page.goto('/catan-timer.html')`, never assume state
+- UI tests: navigate via `page.goto('/speed-catan.html')`, never assume state
 - Prefer `toHaveCount` and `toBeVisible` over screenshot/visual diff
 - Timeouts: 5000ms default, 3000ms for timer ticks
 

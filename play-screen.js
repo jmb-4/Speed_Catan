@@ -8,11 +8,11 @@ import {
   getSetupStep,
   getCurrentSetupStep,
   advanceSetup,
-  startPlayPhase,
   advancePlayer,
   getCurrentPlayerIndex,
   getActionTime,
   getSetupTime,
+  PHASES,
 } from './game-state.js';
 import { resetTimer, addTime, pauseTimer } from './timer.js';
 import { ROBBER_BONUS } from './config.js';

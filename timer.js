@@ -60,6 +60,7 @@ export function addTime(seconds) {
   state.timeLeft += seconds;
   state.totalTime += seconds; // bar wächst mit
   updateDOM();
+  updatePlayButton();
 }
 
 /** Aktuelle Zeit (für externe checks) */
