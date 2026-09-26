@@ -1,16 +1,22 @@
 /**
  * Timer – verwaltet den Countdown und aktualisiert die DOM-Anzeige.
+ *
+ * Der Countdown läuft millisekunden-genau (100-ms-Tick gegen einen
+ * Endzeit-Timestamp): die Bar beginnt sofort zu laufen und ist bei
+ * „Zeit abgelaufen" exakt leer – ohne Anfangs-/Endschlagern.
  */
 
 import { formatTime, calcPercent } from './timer-logic.js';
 import { DEFAULT_SETUP_TIME } from './config.js';
 
 let state = {
-  timeLeft:  DEFAULT_SETUP_TIME,
-  totalTime: DEFAULT_SETUP_TIME,
-  isRunning:  false,
-  isPaused:   false,
-  intervalId: null,
+  timeLeft:    DEFAULT_SETUP_TIME,        // angezeigte Ganzzahl-Sekunden
+  totalTime:   DEFAULT_SETUP_TIME,
+  remainingMs: DEFAULT_SETUP_TIME * 1000, // exakter Rest (für die Bar)
+  endAt:       0,                         // Timestamp des Phasenendes (nur laufend)
+  isRunning:   false,
+  isPaused:    false,
+  intervalId:  null,
 };
 
 // Optionaler Listener für Autosave (wird von speed-catan.js registriert)
@@ -27,10 +33,12 @@ function notifyChange() {
 /** Setzt den Timer zurück (z.B. bei Phasenwechsel) */
 export function resetTimer(seconds) {
   stopTimer();
-  state.timeLeft  = seconds;
-  state.totalTime = seconds;
-  state.isPaused  = false;
+  state.timeLeft    = seconds;
+  state.totalTime   = seconds;
+  state.remainingMs = seconds * 1000;
+  state.isPaused    = false;
   updateDOM();
+  updatePlayButton(); // Label/Status korrigieren, nicht den alten (0 s) Stand zeigen
   notifyChange();
 }
 
@@ -40,10 +48,11 @@ export function resetTimer(seconds) {
  */
 export function restoreTimer(snapshot) {
   stopTimer();
-  state.timeLeft  = snapshot.timeLeft;
-  state.totalTime = snapshot.totalTime;
-  state.isRunning = false;
-  state.isPaused  = (snapshot.wasRunning || snapshot.isPaused) && state.timeLeft > 0;
+  state.timeLeft    = snapshot.timeLeft;
+  state.totalTime   = snapshot.totalTime;
+  state.remainingMs = snapshot.timeLeft * 1000;
+  state.isRunning   = false;
+  state.isPaused    = (snapshot.wasRunning || snapshot.isPaused) && state.timeLeft > 0;
   updateDOM();
   updatePlayButton();
   notifyChange();
@@ -59,19 +68,24 @@ export function startTimer() {
   if (state.isRunning) return;
   state.isRunning = true;
   state.isPaused  = false;
+  state.endAt     = Date.now() + state.remainingMs;
   updatePlayButton();
   updateDOM(); // sofort: .running-Klasse direkt beim Start, nicht erst beim ersten Tick
   notifyChange();
 
   state.intervalId = setInterval(() => {
-    state.timeLeft = Math.max(state.timeLeft - 1, 0);
+    const prev = state.timeLeft;
+    state.remainingMs = Math.max(state.endAt - Date.now(), 0);
+    state.timeLeft    = Math.ceil(state.remainingMs / 1000);
     updateDOM();
 
-    if (state.timeLeft <= 0) {
+    if (state.remainingMs <= 0) {
       stopTimer();
     }
-    notifyChange();
-  }, 1000);
+    if (state.timeLeft !== prev) {
+      notifyChange(); // Autosave nur bei Sekundenwechsel, nicht pro Tick
+    }
+  }, 100);
 }
 
 export function pauseTimer() {
@@ -92,8 +106,10 @@ function stopTimer() {
 
 /** Fügt Zeit hinzu (z.B. Räuber) */
 export function addTime(seconds) {
-  state.timeLeft += seconds;
-  state.totalTime += seconds; // bar wächst mit
+  state.timeLeft    += seconds;
+  state.totalTime   += seconds; // bar wächst mit
+  state.remainingMs += seconds * 1000;
+  if (state.isRunning) state.endAt += seconds * 1000;
   updateDOM();
   updatePlayButton();
   notifyChange();
@@ -118,10 +134,11 @@ export function isPaused() {
 
 /** Setzt den gesamten Timer-State zurück (inkl. intervalId) */
 export function resetAll() {
-  state.timeLeft  = DEFAULT_SETUP_TIME;
-  state.totalTime = DEFAULT_SETUP_TIME;
-  state.isRunning = false;
-  state.isPaused  = false;
+  state.timeLeft    = DEFAULT_SETUP_TIME;
+  state.totalTime   = DEFAULT_SETUP_TIME;
+  state.remainingMs = DEFAULT_SETUP_TIME * 1000;
+  state.isRunning   = false;
+  state.isPaused    = false;
   if (state.intervalId !== null) {
     clearInterval(state.intervalId);
     state.intervalId = null;
@@ -143,7 +160,8 @@ function updateDOM() {
   timerEl.classList.toggle('times-up', done);
   timerEl.classList.toggle('running', state.isRunning && !done);
 
-  const pct = calcPercent(state.timeLeft, state.totalTime);
+  // Bar aus dem exakten Rest (ms) – beginnt sofort und endet pünktlich bei 0
+  const pct = calcPercent(state.remainingMs, state.totalTime * 1000);
   barEl.style.width = pct + '%';
   barEl.classList.toggle('paused', state.isPaused);
   barEl.classList.toggle('running', state.isRunning && !done);

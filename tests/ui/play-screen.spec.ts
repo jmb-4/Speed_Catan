@@ -134,6 +134,49 @@ test('play: timer shows "Zeit abgelaufen" at 0', async ({ page }) => {
   await expect(page.locator('#timer')).toHaveText('Zeit abgelaufen');
 });
 
+test('play: start button works again after next player following time-up', async ({ page }) => {
+  await page.goto('/speed-catan.html');
+  await page.locator('#actionTime').fill('1');
+  await page.locator('#playerCount').selectOption('2');
+  await page.locator('#startBtn').click();
+  // 2 players = 4 setup steps
+  for (let i = 0; i < 4; i++) await page.locator('#nextBtn').click();
+  await page.locator('#playStartBtn').click();
+  await expect(page.locator('#playStartBtn')).toHaveText('Abgelaufen', { timeout: 3000 });
+  await expect(page.locator('#playStartBtn')).toBeDisabled();
+
+  await page.locator('#nextBtn').click(); // nächster Spieler
+
+  await expect(page.locator('#playStartBtn')).toHaveText('Start');
+  await expect(page.locator('#playStartBtn')).toBeEnabled();
+  await expect(page.locator('#timer')).toHaveText('1');
+  await page.locator('#playStartBtn').click();
+  await expect(page.locator('#playStartBtn')).toHaveText('Pause');
+});
+
+test('play: bar drains immediately when the timer starts', async ({ page }) => {
+  await page.goto('/speed-catan.html');
+  await page.locator('#actionTime').fill('30');
+  await page.locator('#playerCount').selectOption('2');
+  await page.locator('#startBtn').click();
+  for (let i = 0; i < 4; i++) await page.locator('#nextBtn').click();
+  await page.locator('#playStartBtn').click();
+  await page.waitForTimeout(300);
+  const width = await page.locator('#bar').evaluate(el => el.style.width);
+  expect(parseFloat(width)).toBeLessThan(100);
+});
+
+test('play: bar is empty when the timer shows Zeit abgelaufen', async ({ page }) => {
+  await page.goto('/speed-catan.html');
+  await page.locator('#actionTime').fill('1');
+  await page.locator('#playerCount').selectOption('2');
+  await page.locator('#startBtn').click();
+  for (let i = 0; i < 4; i++) await page.locator('#nextBtn').click();
+  await page.locator('#playStartBtn').click();
+  await expect(page.locator('#timer')).toHaveText('Zeit abgelaufen', { timeout: 3000 });
+  await expect(page.locator('#bar')).toHaveAttribute('style', /width:\s*0%/);
+});
+
 test('play: robber button adds 15 seconds', async ({ page }) => {
   await page.goto('/speed-catan.html');
   await page.locator('#actionTime').fill('10');
