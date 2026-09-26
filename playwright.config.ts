@@ -11,10 +11,12 @@ export default defineConfig({
       name: 'ui',
       testMatch: /tests\/ui/,
       use: {
-        baseURL: 'http://localhost:3123',
+        // 127.0.0.1 explicitly: python http.server binds IPv4 only, and the
+        // Actions runners resolve `localhost` to ::1 first (ERR_CONNECTION_REFUSED)
+        baseURL: 'http://127.0.0.1:3123',
       },
       webServer: {
-        command: 'python3 -m http.server 3123 --directory .',
+        command: 'python3 -m http.server 3123 --bind 127.0.0.1 --directory .',
         port: 3123,
         reuseExistingServer: !process.env.CI,
         timeout: 10000,
