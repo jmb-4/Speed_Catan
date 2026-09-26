@@ -9,6 +9,7 @@ let state = {
   timeLeft:  DEFAULT_SETUP_TIME,
   totalTime:  DEFAULT_SETUP_TIME,
   isRunning:  false,
+  isPaused:   false,
   intervalId: null,
 };
 
@@ -17,6 +18,7 @@ export function resetTimer(seconds) {
   stopTimer();
   state.timeLeft  = seconds;
   state.totalTime = seconds;
+  state.isPaused  = false;
   updateDOM();
 }
 
@@ -29,6 +31,7 @@ export function toggleTimer() {
 export function startTimer() {
   if (state.isRunning) return;
   state.isRunning = true;
+  state.isPaused  = false;
   updatePlayButton();
 
   state.intervalId = setInterval(() => {
@@ -43,7 +46,8 @@ export function startTimer() {
 
 export function pauseTimer() {
   stopTimer();
-  updatePlayButton();
+  state.isPaused = state.timeLeft > 0;
+  updateDOM();
 }
 
 function stopTimer() {
@@ -77,6 +81,7 @@ export function resetAll() {
   state.timeLeft  = DEFAULT_SETUP_TIME;
   state.totalTime = DEFAULT_SETUP_TIME;
   state.isRunning = false;
+  state.isPaused  = false;
   if (state.intervalId !== null) {
     clearInterval(state.intervalId);
     state.intervalId = null;
@@ -99,7 +104,8 @@ function updateDOM() {
 
   const pct = calcPercent(state.timeLeft, state.totalTime);
   barEl.style.width = pct + '%';
-  barEl.classList.toggle('low', isLow(state.timeLeft));
+  barEl.classList.toggle('low', !state.isPaused && isLow(state.timeLeft));
+  barEl.classList.toggle('paused', state.isPaused);
   barEl.classList.toggle('running', state.isRunning && !done);
 }
 
