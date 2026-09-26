@@ -18,8 +18,3 @@ export function formatTime(seconds) {
 export function calcPercent(timeLeft, totalTime) {
   return Math.max(0, Math.min(100, (timeLeft / totalTime) * 100));
 }
-
-/** Ist die Zeit für eine Low-Warnung? */
-export function isLow(timeLeft) {
-  return timeLeft <= 10;
-}

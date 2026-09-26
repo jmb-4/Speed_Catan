@@ -147,18 +147,7 @@ test('play: robber button adds 15 seconds', async ({ page }) => {
   await expect(page.locator('#timer')).toHaveText('24');
 });
 
-test('play: bar turns red below 10 seconds', async ({ page }) => {
-  await page.goto('/speed-catan.html');
-  await page.locator('#actionTime').fill('12');
-  await page.locator('#playerCount').selectOption('4');
-  await page.locator('#startBtn').click();
-  for (let i = 0; i < 8; i++) await page.locator('#nextBtn').click();
-  await page.locator('#playStartBtn').click();
-  await page.waitForTimeout(3000);
-  await expect(page.locator('#bar')).toHaveClass(/low/);
-});
-
-test('play: bar turns blue when paused', async ({ page }) => {
+test('play: bar dims when paused', async ({ page }) => {
   await page.goto('/speed-catan.html');
   await page.locator('#startBtn').click();
   await page.locator('#playStartBtn').click();
@@ -167,7 +156,7 @@ test('play: bar turns blue when paused', async ({ page }) => {
   await expect(page.locator('#bar')).not.toHaveClass(/running/);
 });
 
-test('play: paused bar is blue not red when time is low', async ({ page }) => {
+test('play: paused bar is dimmed not lit when time is low', async ({ page }) => {
   await page.goto('/speed-catan.html');
   await page.locator('#actionTime').fill('12');
   await page.locator('#playerCount').selectOption('4');
@@ -177,10 +166,9 @@ test('play: paused bar is blue not red when time is low', async ({ page }) => {
   await expect(page.locator('#timer')).toHaveText(/^(8|9|10)$/);
   await page.locator('#playStartBtn').click(); // pause while time is low
   await expect(page.locator('#bar')).toHaveClass(/paused/);
-  await expect(page.locator('#bar')).not.toHaveClass(/low/);
 });
 
-test('play: bar turns green again when resumed', async ({ page }) => {
+test('play: bar lights up again when resumed', async ({ page }) => {
   await page.goto('/speed-catan.html');
   await page.locator('#startBtn').click();
   await page.locator('#playStartBtn').click();
@@ -191,14 +179,14 @@ test('play: bar turns green again when resumed', async ({ page }) => {
   await expect(page.locator('#bar')).not.toHaveClass(/paused/);
 });
 
-test('play: timer number turns green when running', async ({ page }) => {
+test('play: timer number lights up when running', async ({ page }) => {
   await page.goto('/speed-catan.html');
   await page.locator('#startBtn').click();
   await page.locator('#playStartBtn').click();
   await expect(page.locator('#timer')).toHaveClass(/running/);
 });
 
-test('play: timer number is not green when idle', async ({ page }) => {
+test('play: timer number is dimmed when idle', async ({ page }) => {
   await page.goto('/speed-catan.html');
   await page.locator('#startBtn').click();
   await expect(page.locator('#timer')).not.toHaveClass(/running/);

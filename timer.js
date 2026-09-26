@@ -2,7 +2,7 @@
  * Timer – verwaltet den Countdown und aktualisiert die DOM-Anzeige.
  */
 
-import { formatTime, calcPercent, isLow } from './timer-logic.js';
+import { formatTime, calcPercent } from './timer-logic.js';
 import { DEFAULT_SETUP_TIME } from './config.js';
 
 let state = {
@@ -60,6 +60,7 @@ export function startTimer() {
   state.isRunning = true;
   state.isPaused  = false;
   updatePlayButton();
+  updateDOM(); // sofort: .running-Klasse direkt beim Start, nicht erst beim ersten Tick
   notifyChange();
 
   state.intervalId = setInterval(() => {
@@ -144,7 +145,6 @@ function updateDOM() {
 
   const pct = calcPercent(state.timeLeft, state.totalTime);
   barEl.style.width = pct + '%';
-  barEl.classList.toggle('low', !state.isPaused && isLow(state.timeLeft));
   barEl.classList.toggle('paused', state.isPaused);
   barEl.classList.toggle('running', state.isRunning && !done);
 }

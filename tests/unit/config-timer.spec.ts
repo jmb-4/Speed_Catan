@@ -29,13 +29,6 @@ test('calcPercent: clamps to 0..100', async () => {
   expect(calcPercent(-10, 60)).toBe(0);
 });
 
-test('isLow: true when ≤ 10', async () => {
-  const { isLow } = await import('../../timer-logic.js');
-  expect(isLow(10)).toBe(true);
-  expect(isLow(5)).toBe(true);
-  expect(isLow(11)).toBe(false);
-});
-
 /* ── Config ─────────────────────────────────────────────────────────────── */
 
 test('PLAYER_COLORS has at least 6 colors', async () => {
