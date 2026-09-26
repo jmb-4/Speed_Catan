@@ -8,7 +8,7 @@ Single-page Catan (Settlers) timer app: setup phase (player placements) → play
 
 - **Vanilla JS ESM** — no framework, no bundler
 - **localStorage persistence** — `persistence.js` saves settings + game state on the device (versioned JSON under `speed-catan:state`, guarded for private mode); reloads restore the saved game paused, "Neues Spiel" clears the game but keeps settings
-- **Playwright** for unit and UI tests (68 tests total: 29 unit in `tests/unit/`, 39 UI in `tests/ui/`)
+- **Playwright** for unit and UI tests (69 tests total: 27 unit in `tests/unit/`, 42 UI in `tests/ui/`)
 - **Python `http.server`** on port 3123 serves the app during tests (`npm run serve` / `npx --yes serve -l 3123 .` serves the same port for local dev)
 
 ## File layout
